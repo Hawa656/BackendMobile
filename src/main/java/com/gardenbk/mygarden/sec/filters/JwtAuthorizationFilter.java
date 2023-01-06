@@ -4,6 +4,7 @@ import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
+import com.gardenbk.mygarden.sec.web.JwtUtil;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -24,13 +25,17 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        String authorizationToken=request.getHeader("Authorization");
+        if (request.getServletPath().equals("/refreshToken")){
+            filterChain.doFilter(request,response);
+        }
+        else {
+        String authorizationToken=request.getHeader(JwtUtil.Auth_Header);
         //Bearer veux dire porteur ie qu'il ya un token qui contient toute les info
-        if (authorizationToken!=null && authorizationToken.startsWith("Bearer ")){
+        if (authorizationToken!=null && authorizationToken.startsWith(JwtUtil.PREFIX)){
             try {
                     //le 7 c'est pour indiquer d'ignorer les 7 premier caractere de la chaine
-                    String jwt=authorizationToken.substring(7);
-                    Algorithm algorithm=Algorithm.HMAC256("mySecret1234");
+                    String jwt=authorizationToken.substring(JwtUtil.PREFIX.length());
+                    Algorithm algorithm=Algorithm.HMAC256(JwtUtil.SECRET);
                     JWTVerifier jwtVerifier= JWT.require(algorithm).build();
                     DecodedJWT decodedJWT = jwtVerifier.verify(jwt);
                     String username=decodedJWT.getSubject();
@@ -54,5 +59,6 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
             filterChain.doFilter(request,response);
 
         }
+    }
     }
 }
