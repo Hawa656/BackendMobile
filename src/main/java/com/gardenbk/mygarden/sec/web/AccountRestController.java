@@ -37,14 +37,14 @@ public class AccountRestController {
     }
 //Methode qui permet de retourner une liste de user
     @GetMapping(path = "/users")
-    @PostAuthorize("hasAuthority('USER')")
+    //@PostAuthorize("hasAuthority('USER')")
     public List<AppUser> appUsers(){
         return accountService.listUsers();
 
     }
-    //Methode qui permetd'ajouter un user
+    //Methode qui permet d'ajouter un user
     @PostMapping(path = "/users")
-    @PostAuthorize("hasAuthority('ADMIN')")
+    //@PostAuthorize("hasAuthority('ADMIN')")
     public AppUser saveUser(@RequestBody AppUser appUser){
         return  accountService.addNewUser(appUser);
 
@@ -95,14 +95,18 @@ public class AccountRestController {
         }
     //si vous voulez consulter l'utilisateur authentifié :sn profil
     @GetMapping(path = "/profile")
+    /*public AppUser profile(Principal principal){
+
+        return accountService.loadUserByUsername(principal.getName());
+    }*/
     public AppUser profile(Principal principal){
         return accountService.loadUserByUsername(principal.getName());
     }
 
     }
 
-@Getter
-@Setter
+
+@Data
 class RoleUserForm{
     private String username;
     private String roleName;
